@@ -1,0 +1,20 @@
+{
+  "articles": [
+    {
+      "path": "about.html",
+      "title": "About this site",
+      "description": "Some additional details about the website",
+      "author": [],
+      "contents": "\n\n\n\n",
+      "last_modified": "2021-01-24T22:43:18-08:00"
+    },
+    {
+      "path": "index.html",
+      "title": "Peyton Moore",
+      "author": [],
+      "contents": "\n\n          \n      \n      Peyton Moore\n      \n      \n      Home\n      About\n      ☰\n      \n      \n      \n        \n          \n            Peyton Moore\n          \n          \n            \n              I am a Masters student at the Bren School of Environmental Science and Management studying Coastal and Marine Resource Management. I am interested in the ways that humans interact with the ocean, specifically as it relates to coastal economies. I hope to work in support of communities seeking to manage their own marine resources.\n            \n            \n              I am a Masters student at the Bren School of Environmental Science and Management studying Coastal and Marine Resource Management. I am interested in the ways that humans interact with the ocean, specifically as it relates to coastal economies. I hope to work in support of communities seeking to manage their own marine resources.\n            \n          \n\n          \n            \n              \n                  \n                    \n                      LinkedIn\n                    \n                  \n                \n                                \n                  \n                    \n                      Twitter\n                    \n                  \n                \n                                \n                  \n                    \n                      GitHub\n                    \n                  \n                \n                                \n                  \n                    \n                      Email\n                    \n                  \n                \n                              \n          \n\n          \n            \n              \n                                \n                  \n                    LinkedIn\n                  \n                \n                                \n                  \n                    Twitter\n                  \n                \n                                \n                  \n                    GitHub\n                  \n                \n                                \n                  \n                    Email\n                  \n                \n                              \n            \n          \n        \n      \n    \n\n    \n    \n    ",
+      "last_modified": "2021-01-24T22:43:19-08:00"
+    }
+  ],
+  "collections": []
+}

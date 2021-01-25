@@ -1,0 +1,19 @@
+---
+title: "Peyton Moore"
+image: "peyton.JPG"
+links:
+  - label: LinkedIn
+    url: "https://linkedin.com/"
+  - label: Twitter
+    url: "https://twitter.com/"
+  - label: GitHub
+    url: "https://github.com/"
+  - label: Email
+    url: "pamoore@ucsb.edu"
+output:
+  postcards::jolla
+  
+site: distill::distill_website
+---
+ 
+I am a Masters student at the Bren School of Environmental Science and Management studying Coastal and Marine Resource Management. I am interested in the ways that humans interact with the ocean, specifically as it relates to coastal economies. I hope to work in support of communities seeking to manage their own marine resources. 
