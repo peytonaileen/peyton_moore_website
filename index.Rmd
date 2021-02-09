@@ -1,17 +1,15 @@
 ---
 title: "Peyton Moore"
-image: "peyton.JPG"
+image: "images/peyton.JPG"
 links:
   - label: LinkedIn
-    url: "https://linkedin.com/"
-  - label: Twitter
-    url: "https://twitter.com/"
+    url: "https://www.linkedin.com/in/peyton-moore-6b7719137/"
   - label: GitHub
-    url: "https://github.com/"
+    url: "https://github.com/peytonaileen"
   - label: Email
     url: "pamoore@ucsb.edu"
 output:
-  postcards::jolla
+  postcards::trestles
   
 site: distill::distill_website
 ---
