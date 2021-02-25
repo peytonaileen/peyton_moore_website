@@ -1,7 +1,7 @@
 ---
-title: "welcome"
+title: "Welcome to my blog"
 description: |
-  A short description of the post.
+  Here I will include some projects that showcase my skills as a data scientist.
 author:
   - name: Peyton Moore
 date: 02-09-2021
@@ -15,8 +15,6 @@ output:
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-Distill is a publication format for scientific and technical writing, native to the web.
-
-Learn more about using Distill at <https://rstudio.github.io/distill>.
+Welcome to my blog! Here I will be posting some exciting work I have done using R Studio, to understand complex environmental data. 
 
 
