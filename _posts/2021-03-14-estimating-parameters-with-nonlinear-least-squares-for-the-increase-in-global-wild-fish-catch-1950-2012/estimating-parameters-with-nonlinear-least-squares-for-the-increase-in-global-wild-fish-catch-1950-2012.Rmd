@@ -1,0 +1,123 @@
+---
+title: "Modeling increases in global wild fish catch 1950-2012"
+description: |
+  Here I estimate parameters with nonlinear least squares for the increase in global wild fish catch 1950-2012. 
+author:
+  - name: Peyton Moore
+    url: {}
+date: 03-14-2021
+output:
+  distill::distill_article:
+    self_contained: false
+---
+
+
+```{r setup, include=TRUE, message = FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = TRUE,message = FALSE, warning = FALSE, include = TRUE)
+
+library(tidyverse)
+library(janitor)
+library(here)
+library(boot)
+library(gt)
+library(patchwork)
+library(broom)
+library(nlstools)
+
+```
+
+
+## Read in data
+
+
+Source: Global wild fish catch and aquaculture production, compiled by Earth Policy Institute with 1950-2010 from U.N. Food and Agriculture Organization (FAO), Global Capture Production and Global Aquaculture Production, electronic databases, at www.fao.org/fishery/topic/16140/en.
+
+```{r}
+fish_catch <- read_csv(here("data", "fish_catch.csv"), skip = 2) %>% 
+  drop_na() %>% 
+  clean_names() %>% 
+  mutate(year = as.numeric(year), 
+         wild_catch = as.numeric(wild_catch), 
+         farmed_fish = as.numeric(farmed_fish), 
+         total_fish_production = as.numeric(total_fish_production))
+
+#exploratory graph
+
+ggplot(data = fish_catch)+
+  geom_point(aes(x = year, 
+             y = wild_catch), 
+             color = "blue")+
+  geom_point(aes(x = year, 
+             y = farmed_fish), 
+             color = "red")+
+  geom_point(aes(x = year, 
+             y = total_fish_production), 
+             color = "yellow")
+
+ggplot(data = fish_catch)+
+  geom_point(aes(x = year, 
+             y = log(wild_catch)), 
+             color = "blue")
+
+```
+Wild catch looks logistic 
+Production of farmed fish resembles an exponential function
+total fish production is linear-ish 
+
+Logistic growth equation:
+
+$P(t)=\frac{K}{1+Ae^{-kt}}$, where
+
+- $K$ is the carrying capacity
+- $A$ is $\frac{K-P_0}{P_0}$
+- $k$ is the growth rate constant
+
+
+
+
+```{r}
+
+fish_years <- fish_catch %>% 
+  mutate(model_yr = year-1950)
+
+
+```
+
+```{r}
+df_nls <- nls(wild_catch ~ K/(1 + A*exp(-r*model_yr)),
+              data = fish_years,
+              start = list(K = 180, A = 17, r = 0.17),
+              trace = TRUE
+              )
+
+
+summary(df_nls)
+
+model_out <- broom::tidy(df_nls)
+
+p_predict <- predict(df_nls)
+
+df_complete <- data.frame(fish_years, p_predict)
+
+```
+
+Parameters:
+
+K = 1.003e+02
+A = 4.316e+00
+r = 6.989e-02
+
+
+```{r}
+
+ggplot(data = df_complete, aes(x = year, y = wild_catch)) +
+  geom_point(color = "darkorange",
+             alpha = 0.6) +
+  geom_line(aes(x = year, y = p_predict)) +
+  theme_bw()+
+  labs(x = "Year",
+       y = "Wild Catch in Million Tons", 
+       title = "Wild Catch from 1950-2012")
+```
+
+

@@ -1,0 +1,123 @@
+---
+title: "Oceanography parameters at LTER sites in Santa Barbara"
+description: |
+  Here I create a simple dendrogram using clustering analysis to represent different oceanographic parameters in Santa Barbara. 
+author:
+  - name: Peyton Moore
+    url: {}
+date: 03-14-2021
+output:
+  distill::distill_article:
+    self_contained: false
+---
+
+
+```{r setup, include=FALSE, message = FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(janitor)
+library(here)
+library(boot)
+library(gt)
+library(patchwork)
+library(broom)
+library(nlstools)
+
+# Packages for cluster analysis:
+library(NbClust)
+library(cluster)
+library(factoextra)
+library(dendextend)
+library(ggdendro)
+```
+
+
+### Read in the data 
+
+```{r}
+sbc_lter <- read_csv(here("data", "sbc_lter_registered_stream_chemistry.csv"))%>% 
+  mutate(tpc_uM = replace(tpc_uM, 
+                        tpc_uM %in% c("-999.0", "-999", "NaN"),
+                        NA)) %>% 
+   mutate(tdp_uM = replace(tdp_uM, 
+                        tdp_uM %in% c("-999.0", "-999", "NaN"),
+                        NA)) %>% 
+   mutate(nh4_uM = replace(nh4_uM, 
+                        nh4_uM %in% c("-999.0", "-999", "NaN"),
+                        NA)) %>% 
+   mutate(no3_uM = replace(no3_uM, 
+                        no3_uM %in% c("-999.0", "-999", "NaN"),
+                        NA)) %>% 
+   mutate(po4_uM = replace(po4_uM, 
+                        po4_uM %in% c("-999.0", "-999", "NaN"),
+                        NA)) %>% 
+   mutate(tdn_uM = replace(tpc_uM, 
+                        tdn_uM %in% c("-999.0", "-999", "NaN"),
+                        NA)) %>% 
+   mutate(tpn_uM = replace(tpn_uM, 
+                        tpn_uM %in% c("-999.0", "-999", "NaN"),
+                        NA)) %>% 
+   mutate(tpp_uM = replace(tpc_uM, 
+                        tpp_uM %in% c("-999.0", "-999", "NaN"),
+                        NA)) %>% 
+   mutate(tss_mgperLiter = replace(tss_mgperLiter, 
+                        tss_mgperLiter %in% c("-999.0", "-999", "NaN"),
+                        NA)) %>%
+  mutate(spec_cond_uSpercm = replace(spec_cond_uSpercm, 
+                        spec_cond_uSpercm %in% c("-999.0", "-999", "NaN"),
+                        NA)) 
+# create a summary by site 
+lter_sum <- sbc_lter %>% 
+  group_by(site_code) %>% 
+  summarize(nh4_uM = mean(nh4_uM, na.rm = TRUE), 
+            no3_uM = mean(no3_uM, na.rm = TRUE), 
+            po4_uM = mean(po4_uM, na.rm = TRUE), 
+            tdn_uM = mean(tdn_uM, na.rm = TRUE), 
+            tdp_uM = mean(tdp_uM, na.rm = TRUE), 
+            tpc_uM = mean(tpc_uM, na.rm = TRUE), 
+            tpn_uM = mean(tpn_uM, na.rm = TRUE), 
+            tpp_uM = mean(tpp_uM, na.rm = TRUE), 
+            tss_mgperLiter = mean(tss_mgperLiter, na.rm = TRUE), 
+            spec_cond_uSpercm = mean(spec_cond_uSpercm, na.rm = TRUE)) %>% 
+  drop_na()
+#scale the data 
+lter_summary_scaled <- lter_sum %>% 
+  select(2:11) %>% 
+  scale()
+#add row names back in 
+rownames(lter_summary_scaled) <- lter_sum$site_code
+
+# calc euclidean distance 
+
+euc_distance <- dist(lter_summary_scaled, method = "euclidean")
+
+
+view(euc_distance)
+```
+
+DATA & METADATA SOURCE: 
+SBC LTER: Stream chemistry in the Santa Barbara Coastal drainage area, ongoing since 2000
+Creators: Santa Barbara Coastal LTER, & Melack, John M
+Citation: Santa Barbara Coastal LTER and J. Melack. 2019. SBC LTER: Land: Stream chemistry in the Santa Barbara Coastal drainage area, ongoing since 2000 ver 16. Environmental Data Initiative. https://doi.org/10.6073/pasta/67a558a24ceed9a0a5bf5e46ab841174. 
+
+
+### Do hierarchical clustering to create a dendrogram 
+
+```{r}
+cluster_lter <- hclust(euc_distance, method = "complete")
+
+
+
+ggdendrogram(cluster_lter, 
+             rotate = "TRUE")+
+  theme_minimal()+
+  coord_flip()+
+  labs(x = "Site Code", 
+       y = "", 
+       title = "Dendrogram of LTER sites based on oceanography paramaters")
+```
+
+
+
+

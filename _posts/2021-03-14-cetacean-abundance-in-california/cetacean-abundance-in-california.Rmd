@@ -1,0 +1,122 @@
+---
+title: "Cetacean abundance in California"
+description: |
+  Here is a course project where I showcase my skills in spatial analysis of 'raster()' data. 
+author:
+  - name: Peyton Moore
+    url: {}
+date: 03-14-2021
+output:
+  distill::distill_article:
+    self_contained: false
+---
+
+
+```{r setup, include=FALSE, message = FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = TRUE,message = FALSE, warning = FALSE, include = FALSE)
+
+library(tidyverse)
+library(here)
+library(janitor)
+library(sf)
+library(tmap)
+library(gstat)
+library(stars)
+library(raster)
+library(rnaturalearth)
+```
+
+### Data
+
+Kaschner, K., Rius-Barile, J., Kesner-Reyes, K., Garilao, C., Kullander, S., Rees, T., & Froese, R. (2016). AquaMaps: Predicted range maps for aquatic species. www.aquamaps.org
+
+
+### Reading in and exploring the Rasters
+```{r}
+
+# read in cetacean data 
+my_files <- list.files(path = here("data", "ca_cetaceans"), full.names = TRUE)
+
+#create a stack of all the different species 
+cetacean_data <- raster::stack(my_files)
+
+#plot it to see whats going on - ick
+plot(cetacean_data)
+
+#turn it into a data frame to see what is going on
+cetacean_df <- rasterToPoints(cetacean_data) %>% 
+  as.data.frame()
+
+```
+
+### Create a pressence vs. absence function 
+
+```{r}
+#create a function to determine if there is a probability of seeing each species in each cell, threshold of 0.6 
+
+presence_of_cetacean <- function(x, thresh = 0.6){
+  y <- ifelse(x >= thresh, 1, NA)
+  return(y)
+}
+
+# apply that 
+cet_rich <- calc(cetacean_data, fun = presence_of_cetacean)
+
+plot(cet_rich, col = 'green4')
+
+
+```
+
+### Create data frame 
+
+- Use `rasterToPoints()` 
+- Create a species column with `pivot_longer()`
+- Summarize to find the total number of species present in each cell
+
+```{r}
+
+richness_df <- rasterToPoints(cet_rich) %>% 
+  as.data.frame() %>% 
+  pivot_longer(cols = 3:37, names_to = "species", values_to = "presence") %>% 
+  group_by(x, y) %>% 
+  summarize(richness = sum(presence, na.rm = TRUE))
+```
+
+### Read in World Map From `rnatualearth`
+
+```{r}
+#world data 
+
+nat_earth <- ne_countries(scale = "medium", returnclass = "sf")
+
+
+st_crs(nat_earth)
+
+nat_earth <- st_transform(nat_earth, st_crs(cetacean_data))
+ 
+st_crs(nat_earth)
+
+plot(nat_earth)
+
+
+```
+
+
+### Use `ggplot` with `geom_raster()` to create a finalized figure of cetacean richness along the California Coast
+
+
+
+```{r, include=TRUE}
+ggplot()+
+  geom_raster(data = richness_df, aes(x = x, y = y, fill= richness))+
+  geom_sf(data = nat_earth) +
+  coord_sf(expand = 0, xlim = c(-125, -115), ylim =c(32,38))+
+  scale_fill_gradient(low = 'darkslategray1', high = 'turquoise4') +
+  theme_minimal()+
+  labs(fill = "Cetacean Species Richness", 
+       x = "Longitude", 
+       y = "Latitude", 
+       title = "Cetacean Species Richness Along the California Coast")
+
+```
+**Figure 1:** Species richness for 35 cetacean species is shown along the California Coast, with light blues indicating lower species richness, and darker blues indicating higher species richness. This value of richness is extrapolated from probability data, where a threshold of 0.6 was used. Species with a probability of presence in the area of greater than 0.6 were considered to be present, and species with a probability lower than 0.6 were considered to be absent. 
